@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phintopia Pause Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#9b1c22; --red-d:#7a1419; --cream:#fbf6ef; --paper:#fffdf9; --ink:#24170f;
+  --muted:#6f5e52; --line:#eadfd2; --bean:#3b2417; --gold:#c9933a;
+  --bg:var(--cream); --card:var(--paper); --accent:var(--red);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#17110d; --card:#221913; --ink:#f4ebe1; --muted:#b9a797; --line:#3a2c22; --paper:#221913; --accent:#f0c98a;
+  }
+}
+:root[data-theme="dark"]{ --bg:#17110d; --card:#221913; --ink:#f4ebe1; --muted:#b9a797; --line:#3a2c22; --paper:#221913; --accent:#f0c98a; }
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:"Bai Jamjuree",system-ui,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img{display:block;max-width:100%}
+a{color:inherit}
+.serif{font-family:Fraunces,Georgia,serif}
+
+/* concept ribbon */
+.concept{background:var(--bean);color:#f3e6d6;font-size:12px;text-align:center;padding:6px 16px;letter-spacing:.02em}
+
+/* nav */
+nav{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:10px 16px}
+.nav-in img{height:26px}
+.nav-in .links{display:flex;gap:4px;margin-left:12px}
+.nav-in .links a{text-decoration:none;font-size:14px;padding:6px 12px;border-radius:99px;color:var(--muted)}
+.nav-in .links a:first-child{background:color-mix(in srgb,var(--red) 10%,transparent);color:var(--red)}
+.status{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;background:#c0392b;box-shadow:0 0 0 4px color-mix(in srgb,#c0392b 20%,transparent)}
+.dot.open{background:#2e9e5b;box-shadow:0 0 0 4px color-mix(in srgb,#2e9e5b 22%,transparent)}
+#savedChip{display:none;margin-left:8px;font-size:13px;background:var(--red);color:#fff;border:0;border-radius:99px;padding:6px 12px;cursor:pointer;font-family:inherit}
+#savedChip.show{display:inline-block;max-width:46vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* HERO = the finder */
+.hero{position:relative;min-height:calc(100vh - 80px);display:grid;place-items:center;padding:48px 16px 64px;overflow:hidden;isolation:isolate}
+.hero-bg{position:absolute;inset:0;z-index:-2;background:url("https://static-assets.food-hunter.ca/restaurants/phintopia/images/hero.jpg") center/cover;transform:scale(1.04);transition:filter .8s ease}
+.hero{--t1:rgba(20,10,5,.55);--t2:rgba(20,10,5,.86);--orb:#ffc86b;--ox:80%;--oy:14%}
+.hero::before{content:"";position:absolute;inset:0;z-index:-1;background:
+  radial-gradient(120% 90% at 20% 30%,var(--t1),var(--t2) 70%),
+  linear-gradient(180deg,transparent,var(--t2))}
+/* sun / moon that tracks the hour */
+.orb{position:absolute;z-index:-1;width:380px;height:380px;border-radius:50%;left:var(--ox);top:var(--oy);transform:translate(-50%,-50%);
+  background:radial-gradient(circle,var(--orb) 0 9%,color-mix(in srgb,var(--orb) 45%,transparent) 14%,transparent 62%);mix-blend-mode:screen;opacity:.8;pointer-events:none;
+  transition:left 1.4s cubic-bezier(.4,0,.2,1),top 1.4s cubic-bezier(.4,0,.2,1),background 1.4s}
+.hero-bg,.hero::before{transition:filter 1.2s ease}
+.preview{display:inline-flex;gap:4px;margin-left:10px;flex-wrap:wrap;justify-content:center}
+.preview button{all:unset;cursor:pointer;padding:2px 9px;border-radius:99px;border:1px solid rgba(243,230,214,.3);font-size:11px}
+.preview button[aria-pressed="true"]{background:#f3e6d6;color:var(--bean)}
+.opt.suggest{border-color:color-mix(in srgb,var(--accent) 55%,var(--line))}
+.opt .now{position:absolute;top:10px;right:10px;font-style:normal;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent);padding:3px 7px;border-radius:99px}
+.hero-grid{width:100%;max-width:1180px;display:grid;grid-template-columns:1fr 1.05fr;gap:56px;align-items:center}
+.pitch{color:#fbf1e6}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#f0c98a}
+.eyebrow::before{content:"";width:28px;height:1px;background:currentColor}
+.pitch h1{font-family:Fraunces,Georgia,serif;font-weight:400;font-size:clamp(40px,6vw,76px);line-height:1.02;margin:18px 0 18px;letter-spacing:-.02em}
+.pitch h1 em{color:#f0c98a;font-style:italic}
+.pitch p{font-size:18px;max-width:440px;color:#e8d8c7}
+.pitch .alt{margin-top:28px;display:flex;gap:18px;flex-wrap:wrap;font-size:14px}
+.pitch .alt a{color:#f3e6d6;text-underline-offset:4px}
+
+/* brew stage: a live phin that pours what you pick */
+.stage{display:flex;align-items:center;gap:26px;margin-top:30px}
+.brew{--steel:linear-gradient(90deg,#5e5955,#cfc9c3 30%,#f6f3f0 42%,#a19b95 70%,#5a5551);--drip:#2a140a;position:relative;width:150px;height:232px;flex:none}
+.phin{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:120px;height:66px;filter:drop-shadow(0 6px 10px rgba(0,0,0,.45))}
+.phin .lid{position:absolute;top:0;left:22px;width:76px;height:12px;border-radius:10px 10px 3px 3px;background:var(--steel)}
+.phin .lid::after{content:"";position:absolute;top:-7px;left:31px;width:14px;height:8px;border-radius:4px 4px 0 0;background:var(--steel)}
+.phin .cup{position:absolute;top:12px;left:24px;width:72px;height:46px;border-radius:0 0 9px 9px;background:var(--steel)}
+.phin .plate{position:absolute;top:56px;left:0;width:120px;height:8px;border-radius:4px;background:var(--steel)}
+.drops{position:absolute;left:50%;top:74px;width:6px;transform:translateX(-50%)}
+.drop{position:absolute;left:0;top:0;width:6px;height:9px;border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:var(--drip);box-shadow:inset 1px 1px 0 rgba(255,255,255,.35);opacity:0}
+.dripping .drop{animation:fall 1.1s linear infinite}
+.dripping .drop:nth-child(2){animation-delay:.37s}
+.dripping .drop:nth-child(3){animation-delay:.74s}
+.slow .drop{animation-duration:2.8s}
+.slow .drop:nth-child(2){animation-delay:.93s}
+.slow .drop:nth-child(3){animation-delay:1.86s}
+@keyframes fall{0%{transform:translateY(0) scale(.5);opacity:0}15%{opacity:1}85%{opacity:1}100%{transform:translateY(24px) scale(1);opacity:0}}
+.glass{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:118px;height:132px;border:3px solid rgba(255,255,255,.55);border-top-width:0;border-radius:6px 6px 22px 22px;overflow:hidden;background:rgba(255,255,255,.07);transition:box-shadow 1s}
+.glass::after{content:"";position:absolute;top:8px;bottom:14px;left:10px;width:9px;border-radius:8px;background:linear-gradient(rgba(255,255,255,.5),rgba(255,255,255,.04));z-index:3}
+.hot .glass{box-shadow:0 0 46px 6px rgba(240,150,70,.45)}
+.fill{position:absolute;left:0;right:0;bottom:0;height:0;display:flex;flex-direction:column-reverse;transition:height 1.4s cubic-bezier(.3,.7,.3,1)}
+.layer{flex:0 0 0;transition:flex-grow 1.2s ease,background-color 1s ease}
+.cube{position:absolute;width:30px;height:27px;border-radius:6px;background:rgba(255,255,255,.3);border:1px solid rgba(255,255,255,.65);opacity:0;transform:translateY(-140px) rotate(var(--r));transition:transform .9s cubic-bezier(.3,1.4,.5,1),opacity .4s;z-index:2}
+.cube:nth-of-type(1){left:14px;bottom:48px;--r:12deg}
+.cube:nth-of-type(2){left:60px;bottom:58px;--r:-18deg;transition-delay:.12s}
+.cube:nth-of-type(3){left:34px;bottom:80px;--r:28deg;transition-delay:.24s}
+.iced .cube{opacity:1;transform:translateY(0) rotate(var(--r))}
+.brew-cap small{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#f0c98a}
+.brew-cap b{display:block;font-family:Fraunces,Georgia,serif;font-size:24px;font-weight:400;color:#fbf1e6;margin:6px 0;max-width:270px;line-height:1.2}
+.brew-cap span{font-size:14px;color:#d9c6b3}
+
+/* finder card */
+.finder{background:var(--card);color:var(--ink);border-radius:28px;padding:28px;box-shadow:0 30px 80px -20px rgba(0,0,0,.6);min-height:460px;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.progress{display:flex;gap:6px;margin-bottom:22px}
+.progress span{flex:1;height:4px;border-radius:9px;background:var(--line);transition:background .3s}
+.progress span.on{background:var(--red)}
+.step-label{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.q{font-family:Fraunces,Georgia,serif;font-size:30px;line-height:1.15;margin:6px 0 22px;font-weight:400}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.opt{all:unset;position:relative;cursor:pointer;border:1.5px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:4px;transition:transform .15s,border-color .15s,background .15s;background:var(--bg)}
+.opt:hover{border-color:var(--red);transform:translateY(-2px)}
+.opt:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.opt .ico{font-size:26px;line-height:1}
+.opt b{font-size:16px;font-weight:600;margin-top:6px}
+.opt small{font-size:13px;color:var(--muted)}
+.back{all:unset;cursor:pointer;font-size:13px;color:var(--muted);margin-top:auto;padding-top:18px}
+.back:hover{color:var(--red)}
+.pane{animation:in .35s ease both;display:flex;flex-direction:column;flex:1}
+@keyframes in{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+
+/* result */
+.result{display:grid;grid-template-columns:180px 1fr;gap:20px;align-items:start}
+.result img{width:180px;height:220px;object-fit:cover;border-radius:18px}
+.match{display:inline-block;font-size:12px;font-weight:600;color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);padding:4px 10px;border-radius:99px}
+.result h3{font-family:Fraunces,Georgia,serif;font-weight:600;font-size:28px;line-height:1.1;margin:10px 0 6px}
+.result p{color:var(--muted);font-size:15px}
+.why{margin-top:10px;font-size:14px;border-left:3px solid var(--gold);padding-left:10px;color:var(--ink)}
+.price{font-size:20px;font-weight:700;margin-top:12px}
+.price small{font-weight:400;color:var(--muted);font-size:13px;margin-right:4px}
+.cta-row{display:flex;flex-direction:column;gap:10px;margin-top:22px}
+.cta{all:unset;cursor:pointer;text-align:center;background:var(--red);color:#fff;border-radius:16px;padding:16px;font-weight:600;font-size:16px;transition:background .15s,transform .15s}
+.cta:hover{background:var(--red-d);transform:translateY(-1px)}
+.cta:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.cta-sub{display:flex;gap:10px}
+.ghost{all:unset;cursor:pointer;flex:1;text-align:center;border:1.5px solid var(--line);border-radius:14px;padding:11px;font-size:14px;font-weight:500}
+.ghost:hover{border-color:var(--red);color:var(--red)}
+.note{font-size:13px;color:var(--muted);text-align:center;margin-top:10px}
+.toast{position:absolute;left:28px;right:28px;bottom:20px;background:var(--bean);color:#fbefe0;border-radius:14px;padding:12px 14px;font-size:14px;transform:translateY(20px);opacity:0;visibility:hidden;transition:transform .35s ease,opacity .35s,visibility .35s}
+.toast.show{transform:none;opacity:1;visibility:visible}
+
+/* info strip */
+.strip{max-width:1180px;margin:-40px auto 0;position:relative;z-index:2;padding:0 16px}
+.strip-in{background:var(--card);border-radius:22px;border:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr);box-shadow:0 20px 40px -24px rgba(60,30,10,.35)}
+.strip-in a{display:flex;gap:14px;align-items:center;padding:20px 24px;text-decoration:none}
+.strip-in a+a{border-left:1px solid var(--line)}
+.strip-in .i{width:40px;height:40px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;flex:none}
+.strip-in small{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.strip-in b{font-weight:500;font-size:15px}
+
+section{max-width:1180px;margin:0 auto;padding:96px 16px 0}
+.sec-head{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:32px;flex-wrap:wrap}
+.sec-head h2{font-family:Fraunces,Georgia,serif;font-weight:400;font-size:clamp(30px,4vw,44px);line-height:1.1;margin-top:8px}
+.sec-head .eyebrow{color:var(--red)}
+.sec-head a{font-size:14px;color:var(--red);font-weight:600;text-underline-offset:4px}
+.rail{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+.drink{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden}
+.drink img{aspect-ratio:4/5;object-fit:cover;width:100%}
+.drink div{padding:14px 16px 18px}
+.drink b{display:block;font-weight:600}
+.drink span{font-size:14px;color:var(--muted)}
+
+.story{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.story img{border-radius:28px;aspect-ratio:4/5;object-fit:cover;width:100%}
+.story p{color:var(--muted);font-size:17px;margin-top:16px}
+.visit{display:grid;grid-template-columns:360px 1fr;gap:20px;align-items:stretch}
+.hours-card,.loc-card{background:var(--card);border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.hours-card{padding:20px 20px 12px}
+.hc-head{display:flex;align-items:center;gap:10px;padding:0 10px 14px;margin-bottom:6px;border-bottom:1px solid var(--line);font-size:15px}
+.hc-head b{font-weight:600}
+.hrow{display:flex;align-items:center;gap:8px;padding:7px 10px;font-size:14px;border-radius:10px}
+.hrow b{font-weight:500;flex:1;color:var(--muted)}
+.hrow span{font-variant-numeric:tabular-nums;color:var(--muted)}
+.hrow.today{background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.hrow.today b,.hrow.today span{color:var(--ink);font-weight:600}
+.loc-card{display:flex;flex-direction:column}
+.loc-card iframe{border:0;width:100%;flex:1;min-height:240px;display:block}
+.loc-body{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 20px;flex-wrap:wrap}
+.loc-body b{display:block;font-weight:600}
+.loc-body span{font-size:14px;color:var(--muted)}
+.loc-actions{display:flex;gap:10px}
+.loc-actions a{display:block;padding:12px 18px;font-size:15px;border-radius:14px;text-align:center;font-weight:600}
+.hrow em{font-style:normal;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent);padding:3px 8px;border-radius:99px}
+footer{margin-top:96px;background:var(--bean);color:#e9dccd;padding:48px 16px}
+.foot{max-width:1180px;margin:0 auto;display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-size:14px}
+.foot img{height:56px;margin-bottom:10px}
+
+/* the round: one order for the whole table */
+.shelf{display:flex;gap:14px;margin-top:14px;flex-wrap:wrap}
+.shelf:empty{display:none}
+.shelf span{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:#d9c6b3;animation:in .4s ease both}
+.mg{display:inline-block;width:20px;height:26px;border:2px solid rgba(255,255,255,.75);border-top:0;border-radius:2px 2px 7px 7px;flex:none}
+.round{position:fixed;left:50%;bottom:16px;transform:translate(-50%,160%);width:min(600px,calc(100% - 32px));z-index:30;transition:transform .45s cubic-bezier(.3,1.3,.5,1)}
+.round.show{transform:translate(-50%,0)}
+.round-bar{display:flex;align-items:center;gap:12px;background:var(--bean);color:#fbefe0;border-radius:22px;padding:10px 10px 10px 16px;box-shadow:0 20px 50px -10px rgba(0,0,0,.55)}
+.round-toggle{all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;flex:1;min-width:0}
+.round-toggle b{display:block;font-size:15px;font-weight:600}
+.round-toggle small{font-size:13px;color:#d9c6b3}
+.round-toggle i.caret{font-style:normal;color:#d9c6b3;transition:transform .2s}
+.round.open .caret{transform:rotate(180deg)}
+.mgs{display:flex}
+.mgs .mg+.mg{margin-left:-6px}
+.round-cta{padding:12px 18px;font-size:15px;border-radius:14px;white-space:nowrap}
+.round-list{display:none;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:20px;padding:8px;margin-bottom:8px;box-shadow:0 20px 50px -10px rgba(0,0,0,.4);max-height:50vh;overflow-y:auto;overflow-x:hidden}
+.round.open .round-list{display:block;animation:in .25s ease both}
+.ri{display:flex;align-items:center;gap:12px;padding:10px}
+.ri+.ri{border-top:1px solid var(--line)}
+.ri .mg{border-color:var(--muted)}
+.ri span{flex:1;min-width:0}
+.ri b{display:block;font-weight:600;font-size:15px}
+.ri small{color:var(--muted);font-size:13px}
+.ri em{font-style:normal;font-weight:600}
+.ri button{all:unset;cursor:pointer;width:28px;height:28px;border-radius:50%;text-align:center;line-height:28px;color:var(--muted);font-size:18px}
+.ri button:hover{color:var(--red)}
+.ri-add{all:unset;cursor:pointer;display:block;text-align:center;padding:12px;margin-top:4px;border:1.5px dashed var(--line);border-radius:14px;color:var(--accent);font-weight:600;width:100%;box-sizing:border-box}
+.linkbtn{all:unset;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.ghost.friend{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));color:var(--accent)}
+body.has-round{padding-bottom:100px}
+
+@media (max-width:900px){
+  .round-cta{padding:12px 14px;font-size:14px}
+  .hero-grid{grid-template-columns:1fr;gap:28px}
+  .pitch h1{font-size:clamp(36px,10vw,52px);margin:12px 0}
+  .pitch p{display:none}
+  .pitch .alt{display:none}
+  .stage{margin-top:4px;gap:18px}
+  .brew{zoom:.68}
+  .brew-cap b{font-size:20px}
+  .rail{grid-template-columns:repeat(5,72%);overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:8px}
+  .rail .drink{scroll-snap-align:start}
+  .story{grid-template-columns:1fr;gap:28px}
+  .visit{grid-template-columns:320px 1fr}
+  .strip-in{grid-template-columns:1fr}
+  .strip-in a+a{border-left:0;border-top:1px solid var(--line)}
+  .nav-in .links{display:none}
+}
+@media (max-width:700px){
+  .visit{grid-template-columns:1fr}
+  .loc-actions{width:100%}
+  .loc-actions a{flex:1}
+}
+@media (max-width:520px){
+  .finder{padding:20px;border-radius:22px;min-height:0}
+  .q{font-size:24px}
+  .opt{padding:13px}
+  .result{grid-template-columns:1fr}
+  .result img{width:100%;height:200px}
+  .status span{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="concept">Redesign concept, not the official Phintopia site <span class="preview" id="preview" aria-label="Preview time of day"></span></div>
+
+<nav>
+  <div class="nav-in">
+    <img src="https://static-assets.food-hunter.ca/restaurants/phintopia/images/navlogo.png" alt="Phintopia">
+    <div class="links"><a href="#">Home</a><a href="menu.html">Menu</a><a href="#visit">Visit</a></div>
+    <div class="status"><i class="dot" id="dot"></i><span id="statusTxt">…</span></div>
+    <button id="savedChip"></button>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="orb" aria-hidden="true"></div>
+  <div class="hero-grid">
+    <div class="pitch">
+      <div class="eyebrow" id="heroEye">Vietnamese phin coffee · Ottawa</div>
+      <h1 id="heroH1">What should your <em>pause</em> taste like?</h1>
+      <p id="heroP">29 drinks, 3 questions. Tap your mood and we'll pour the right cup, from slow-dripped phin to jasmine silver needles.</p>
+      <div class="stage">
+        <div class="brew" id="brew" aria-hidden="true">
+          <div class="phin"><i class="lid"></i><i class="cup"></i><i class="plate"></i></div>
+          <div class="drops"><i class="drop"></i><i class="drop"></i><i class="drop"></i></div>
+          <div class="glass">
+            <i class="cube"></i><i class="cube"></i><i class="cube"></i>
+            <div class="fill" id="fill"><i class="layer"></i><i class="layer"></i><i class="layer"></i></div>
+          </div>
+        </div>
+        <div class="brew-cap" aria-live="polite"><small id="capK"></small><b id="capT"></b><span id="capS"></span><div class="shelf" id="shelf"></div></div>
+      </div>
+      <div class="alt"><a href="menu.html">I already know: show the menu</a><a href="#visit">Find the café</a></div>
+    </div>
+
+    <div class="finder" id="finder" aria-live="polite"></div>
+  </div>
+</header>
+
+<div class="strip">
+  <div class="strip-in">
+    <a href="#visit"><span class="i">◷</span><span><small>Today's hours</small><b id="stripHours">…</b></span></a>
+    <a href="https://www.google.com/maps/search/?api=1&query=45.45279%2C-75.63247" target="_blank" rel="noopener"><span class="i">⌖</span><span><small>Visit us</small><b>1340 Hemlock Rd, Unit 113</b></span></a>
+    <a href="menu.html"><span class="i">☕</span><span><small>Order ahead</small><b>Skip the line, pick up fresh</b></span></a>
+  </div>
+</div>
+
+<section>
+  <div class="sec-head">
+    <div><div class="eyebrow">Right now at Phintopia</div><h2 class="serif" id="railTitle">Guest favourites</h2></div>
+    <a href="menu.html">See all 29 drinks →</a>
+  </div>
+  <div class="rail" id="rail"></div>
+</section>
+
+<section>
+  <div class="story">
+    <img src="https://static-assets.food-hunter.ca/restaurants/phintopia/images/menu/phin-coffee.jpg" alt="Vietnamese phin coffee brewing">
+    <div>
+      <div class="eyebrow" style="color:var(--red)">Our story</div>
+      <h2 class="serif" style="font-weight:400;font-size:clamp(30px,4vw,44px);line-height:1.1;margin-top:8px">A quiet place to pause</h2>
+      <p>Phintopia began with a dream of a calm, welcoming place away from the noise of everyday life. It's inspired by traditional Vietnamese phin coffee, where a slow drip turns each cup into a small ritual.</p>
+      <p>Alongside slow-brewed coffee we serve matcha, herbal teas and seasonal favourites, made for moments of comfort and renewal.</p>
+    </div>
+  </div>
+</section>
+
+<section id="visit">
+  <div class="sec-head">
+    <div><div class="eyebrow">Visit us</div><h2 class="serif">Come find your pause</h2></div>
+  </div>
+  <div class="visit">
+    <div class="hours-card">
+      <div class="hc-head"><i class="dot" id="dot2"></i><b id="hcStatus"></b></div>
+      <div class="hours" id="hours"></div>
+    </div>
+    <div class="loc-card">
+      <iframe title="Map to Phintopia" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox=-75.6385%2C45.4498%2C-75.6265%2C45.4558&amp;layer=mapnik&amp;marker=45.45279%2C-75.63247"></iframe>
+      <div class="loc-body">
+        <div><b>1340 Hemlock Road, Unit 113</b><span>Ottawa, ON K1K 5C3</span></div>
+        <div class="loc-actions">
+          <a class="cta" href="https://www.google.com/maps/search/?api=1&query=45.45279%2C-75.63247" target="_blank" rel="noopener">Get directions</a>
+          <a class="ghost" href="menu.html">Order ahead</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot">
+    <div><img src="https://static-assets.food-hunter.ca/restaurants/phintopia/images/logo.png" alt="Phintopia Coffee & Tea"><div>1340 Hemlock Road, Unit 113, Ottawa, ON K1K 5C3</div></div>
+    <div style="opacity:.7">Concept redesign · imagery © Phintopia</div>
+  </div>
+</footer>
+
+<div class="round" id="round" aria-live="polite">
+  <div class="round-list" id="roundList"></div>
+  <div class="round-bar">
+    <button class="round-toggle" id="roundToggle" aria-label="Show the round"><span class="mgs" id="roundGlasses"></span><span><b id="roundCount"></b><small id="roundTotal"></small></span><i class="caret">⌃</i></button>
+    <button class="cta round-cta" id="roundOrder"></button>
+  </div>
+</div>
+
+<script src="phintopia-data.js"></script>
+<script>
+
+const STEPS = [
+ {k:"mood", label:"Step 1 of 3", q:"How do you want to feel?", o:[
+   {v:"wake", i:"⚡", t:"Wake me up", s:"Bold, strong, focused"},
+   {v:"calm", i:"🍃", t:"Calm me down", s:"Gentle, floral, soothing"},
+   {v:"treat",i:"🍯", t:"Treat myself", s:"Sweet, creamy, indulgent"},
+   {v:"fresh",i:"🍋", t:"Refresh me", s:"Bright, fruity, lively"}]},
+ {k:"temp", label:"Step 2 of 3", q:"Warm hands or a cold glass?", o:[
+   {v:"hot", i:"♨️", t:"Something warm", s:"Steaming cup"},
+   {v:"iced",i:"🧊", t:"Something iced", s:"Over ice"},
+   {v:"both",i:"🤷", t:"Either works", s:"Surprise me"}]},
+ {k:"base", label:"Step 3 of 3", q:"Coffee, tea, or neither?", o:[
+   {v:"coffee",i:"☕", t:"Coffee", s:"Phin, espresso, lattes"},
+   {v:"tea",   i:"🍵", t:"Tea & matcha", s:"Leaves and whisks"},
+   {v:"other", i:"🥤", t:"Neither", s:"Lemonade, cocoa, Coco-Ado"},
+   {v:"any",   i:"✨", t:"Dealer's choice", s:"Whatever fits best"}]},
+];
+
+document.getElementById("dot").classList.toggle("open",OPEN);
+document.getElementById("statusTxt").textContent = OPEN ? `Open until ${fmt(c)}` : `Closed · opens ${nextOpen}`;
+document.getElementById("stripHours").textContent = OPEN ? `Open now · until ${fmt(c)}` : `Opens ${nextOpen}`;
+document.getElementById("hours").innerHTML = [1,2,3,4,5,6,0].map(i=>
+  `<div class="hrow ${i===N.day?"today":""}"><b>${DAYS[i]}</b>${i===N.day?"<em>Today</em>":""}<span>${fmt(HOURS[i][0])} – ${fmt(HOURS[i][1])}</span></div>`).join("");
+document.getElementById("dot2").classList.toggle("open",OPEN);
+document.getElementById("hcStatus").textContent = OPEN ? `Open now · until ${fmt(c)}` : `Closed · opens ${nextOpen}`;
+
+// ---- time of day: the page changes with Ottawa's clock ----
+const DAYPARTS = {
+ morning:{name:"Morning", label:"morning", when:"this morning", mood:"wake", temp:"hot",
+   t1:"rgba(70,35,5,.32)", t2:"rgba(35,18,5,.78)", orb:"#ffc86b", ox:"78%", oy:"16%", filter:"saturate(1.08) brightness(1.06)",
+   h1:"What should your <em>first pause</em> taste like?", p:"Start slow with a phin drip, or wake up fast with espresso. Three taps and your morning cup is chosen.",
+   rail:"Made for mornings", picks:["Phin đen sữa","Latte","Cà phê muối","Matcha Latte","Americano"]},
+ midday:{name:"Midday", label:"lunchtime", when:"lunch", mood:"fresh", temp:"iced",
+   t1:"rgba(40,25,10,.28)", t2:"rgba(30,16,6,.74)", orb:"#fff1c9", ox:"52%", oy:"2%", filter:"saturate(1.1) brightness(1.1)",
+   h1:"Turn lunch into a <em>real pause</em>.", p:"Something cold and bright to reset the day. Tell us your mood and we'll pour it.",
+   rail:"Lunchtime lifts", picks:["Cà phê muối","Cold Brew","Matcha Strawberry","Lemonade","Coco - Ado"]},
+ afternoon:{name:"Afternoon", label:"afternoon", when:"this afternoon", mood:"treat", temp:"iced",
+   t1:"rgba(80,35,5,.4)", t2:"rgba(40,16,4,.82)", orb:"#ffa14f", ox:"84%", oy:"34%", filter:"saturate(1.15) sepia(.12)",
+   h1:"The 3 PM slump calls for a <em>proper pause</em>.", p:"Salted coffee, strawberry matcha or something sweeter. You've earned the treat.",
+   rail:"Afternoon pick-me-ups", picks:["Matcha Strawberry","Coco Latte","Honey Lemonade","Cà phê muối","Blackberry Green Bliss"]},
+ evening:{name:"Evening", label:"evening", when:"this evening", mood:"calm", temp:"hot",
+   t1:"rgba(70,20,40,.5)", t2:"rgba(28,10,24,.88)", orb:"#ff7a6b", ox:"86%", oy:"66%", filter:"saturate(.95) sepia(.18) brightness(.92)",
+   h1:"Wind down with a <em>slower pause</em>.", p:"Floral teas, gentle bạc xỉu and warm cocoa, for the slow end of the day.",
+   rail:"Slow evening sips", picks:["Honey Chrysanthemum Tea","Jasmine Silver Needles","Phin bạc xỉu","Lavender Earl Grey","Hot Chocolate"]},
+ night:{name:"Night", label:"night", when:"tomorrow morning", mood:"wake", temp:"hot",
+   t1:"rgba(10,14,40,.62)", t2:"rgba(6,8,22,.93)", orb:"#dfe6ff", ox:"80%", oy:"12%", filter:"saturate(.5) brightness(.72) hue-rotate(-8deg)",
+   h1:"Plan <em>tomorrow's pause</em> tonight.", p:"We're closed, but the phin is ready. Pick your first cup now and it'll be waiting when we open.",
+   rail:"Tomorrow's first cup", picks:["Phin đen sữa","Cà phê muối","Matcha Strawberry","Latte","Jasmine Silver Needles"]},
+};
+const LIVE_DP = (!OPEN && N.h>=12) || N.h<5 ? "night" : N.h<11 ? "morning" : N.h<14 ? "midday" : N.h<17 ? "afternoon" : "evening";
+let DP = DAYPARTS[LIVE_DP];
+const hero = document.querySelector(".hero");
+function applyDaypart(key){
+  DP = DAYPARTS[key];
+  ["t1","t2","orb","ox","oy"].forEach(k=>hero.style.setProperty("--"+k, DP[k]));
+  document.getElementById("heroBg").style.filter = DP.filter;
+  document.getElementById("heroEye").textContent = `${DAYS[N.day]} ${DP.label} · Ottawa`;
+  document.getElementById("heroH1").innerHTML = DP.h1;
+  document.getElementById("heroP").textContent = DP.p;
+  document.getElementById("railTitle").textContent = DP.rail;
+  document.getElementById("rail").innerHTML = DP.picks.map(n=>DRINKS.find(d=>d.n===n)).filter(Boolean).map(d=>
+    `<article class="drink"><img loading="lazy" src="${d.img}" alt="${d.n}"><div><b>${d.n}</b><span>${d.from?"from ":""}$${d.p}</span></div></article>`).join("");
+  document.querySelectorAll("#preview button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.k===key || (b.dataset.k==="live" && key===LIVE_DP && !previewing)));
+  if(typeof renderStep==="function" && !document.querySelector("#finder .result")) renderStep();
+}
+let previewing = false;
+document.getElementById("preview").innerHTML = "Preview: " + [["live","Live"],...Object.entries(DAYPARTS).map(([k,v])=>[k,v.name])]
+  .map(([k,n])=>`<button data-k="${k}">${n}</button>`).join("");
+document.querySelectorAll("#preview button").forEach(b=>b.onclick=()=>{ previewing = b.dataset.k!=="live"; applyDaypart(previewing?b.dataset.k:LIVE_DP); });
+
+// ---- saved pick (per-viewer convenience) ----
+const chip = document.getElementById("savedChip");
+const saved = ()=>{ const s=store.get(); return (s ? [].concat(s) : []).map(n=>DRINKS.find(x=>x.n===n)).filter(Boolean); };
+function showChip(){ const s=saved(); if(s.length){ chip.textContent = s.length>1 ? `☕ Your round: ${s.length} drinks` : `☕ Your pick: ${s[0].n}`; chip.classList.add("show"); } }
+chip.onclick = ()=>{
+  const s=saved(); if(!s.length) return;
+  if(s.length>1){ tray = s.map((d,i)=>({who:who(i),d})); renderRound(); document.getElementById("round").classList.add("open"); return; }
+  ans={}; renderResult([s[0]],0); document.getElementById("finder").scrollIntoView({behavior:"smooth",block:"center"});
+};
+showChip();
+
+// ---- brew stage ----
+const MOOD = {
+ wake:{c:"#2a140a", t:"Dark and strong. Dripping slow, the phin way."},
+ calm:{c:"#d9c27a", t:"Gentle and floral. Easy does it."},
+ treat:{c:"#b07a4a", t:"Something sweet is coming through."},
+ fresh:{c:"#f0d465", t:"Bright and lively, with a little zing."},
+};
+const brew = document.getElementById("brew"), fill = document.getElementById("fill"), LAY = [...fill.children];
+const [capK, capT, capS] = ["capK","capT","capS"].map(id=>document.getElementById(id));
+const cap = (k,t,s="") => { capK.textContent=k; capT.textContent=t; capS.textContent=s; };
+function untilOpen(){
+  const n = nowOttawa(), [o] = HOURS[n.day];
+  const hrs = n.h<o ? o-n.h : 24-n.h+HOURS[(n.day+1)%7][0];
+  return `Opens in ${Math.floor(hrs)}h ${Math.round(hrs%1*60)}m`;
+}
+function pour(layers, lvl){
+  fill.style.height = lvl+"%";
+  LAY.forEach((el,i)=>{ const x=layers[i]; el.style.flexGrow = x?x[1]:0; if(x) el.style.backgroundColor=x[0]; });
+  brew.style.setProperty("--drip", layers[layers.length-1][0]);
+}
+function drip(on, slow){ brew.classList.toggle("dripping",on); brew.classList.toggle("slow",!!slow); }
+function temp(t){ brew.classList.toggle("iced",t==="iced"); brew.classList.toggle("hot",t==="hot"); }
+function brewReset(){
+  pour([["#2a140a",1]],0); temp(null);
+  if(OPEN){ drip(false); cap("Your cup is waiting","Pick a mood and the phin starts dripping."); }
+  else { drip(true,true); cap("Closed for the night","The phin's still warm. Choose tonight, sip at 8 AM.", untilOpen()); }
+}
+function brewReplay(){
+  brewReset();
+  if(ans.mood){ const m=MOOD[ans.mood]; pour([[m.c,1]],32); drip(true); cap("Now brewing",m.t); }
+  if(ans.temp){ pour([[MOOD[ans.mood].c,1]],56); temp(ans.temp);
+    cap("Now brewing", {hot:"Kept warm, the way a phin should be.",iced:"Over a glass of ice, Saigon-style.",both:"Hot or iced, we'll find your fit."}[ans.temp]); }
+}
+function brewPour(d, again){
+  const go = ()=>{ pour(POUR[d.n]||[["#3a1d0e",1]], d.n==="Espresso"?38:90); temp(ans.temp||d.t); drip(true);
+    cap(`Poured for ${tray.length?who(tray.length):"you"}`, d.n, OPEN?"Fresh and ready to order":untilOpen()); setTimeout(()=>drip(!OPEN,true),1600); };
+  if(again){ pour(POUR[d.n]||[["#3a1d0e",1]],0); setTimeout(go,450); } else go();
+}
+
+// ---- finder ----
+const F = document.getElementById("finder");
+let ans = {}, step = 0, tray = [];
+const who = i => i ? `Friend ${i}` : "You";
+const bar = n => `<div class="progress">${[0,1,2,3].map(i=>`<span class="${i<=n?"on":""}"></span>`).join("")}</div>`;
+
+// the option that suits the time of day goes first
+const suggestFirst = s => [...s.o].sort((a,b)=>(DP[s.k]===b.v)-(DP[s.k]===a.v));
+
+function renderStep(){
+  const s = STEPS[step];
+  F.innerHTML = `${bar(step)}<div class="pane">
+    <div class="step-label">${tray.length?`Drink ${tray.length+1} · ${who(tray.length)} · `:""}${s.label}</div>
+    <h2 class="q">${tray.length&&step===0?"How do they want to feel?":s.q}</h2>
+    <div class="opts">${suggestFirst(s).map(o=>{ const sug = DP[s.k]===o.v;
+      return `<button class="opt ${sug?"suggest":""}" data-v="${o.v}">${sug?`<em class="now">For ${DP.when}</em>`:""}<span class="ico">${o.i}</span><b>${o.t}</b><small>${o.s}</small></button>`; }).join("")}</div>
+    ${step?`<button class="back" id="back">← Back</button>`:`<div class="back" style="cursor:default">Takes about 10 seconds</div>`}
+  </div>`;
+  F.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{ ans[s.k]=b.dataset.v; step++; if(step<STEPS.length){ brewReplay(); renderStep(); } else finish(); });
+  const bk=F.querySelector("#back"); if(bk) bk.onclick=()=>{step--; delete ans[STEPS[step].k]; brewReplay(); renderStep();};
+}
+
+function rank(){
+  return DRINKS.map(d=>{
+    let sc = 0;
+    if(d.m[0]===ans.mood) sc+=5; else if(d.m.includes(ans.mood)) sc+=3;
+    if(ans.base==="any" || d.b===ans.base) sc+=3;
+    if(ans.temp==="both" || d.t==="both" || d.t===ans.temp) sc+=2;
+    if(d.img.includes("/item/")) sc+=.5; // nudge to photographed signatures
+    if(d.m.includes(DP.mood)) sc+=.8; // gentle time-of-day nudge
+    return {d, sc: sc + Math.random()*.4};
+  }).sort((a,b)=>b.sc-a.sc).map(x=>x.d);
+}
+
+function finish(){ renderResult(rank(),0); }
+
+function renderResult(list, i){
+  const d = list[i % list.length];
+  const pct = Math.max(82, 98 - i*4), me = who(tray.length), n = tray.length+1;
+  brewPour(d, i>0);
+  F.innerHTML = `${bar(3)}<div class="pane">
+    <div class="result">
+      <img src="${d.img}" alt="${d.n}">
+      <div>
+        <span class="match">${ans.mood ? `${pct}% match for ${tray.length?me+"'s":"your"} mood` : "Your saved pick"}</span>
+        <h3>${d.n}</h3>
+        <p>${d.d}</p>
+        <div class="why">${d.why}</div>
+        <div class="price">${d.from?"<small>from</small>":""}$${d.p}</div>
+      </div>
+    </div>
+    <div class="cta-row">
+      ${tray.length
+        ? `<button class="cta" id="order">${OPEN?"Add & order the round":"Add & save the round"} (${n} drinks) →</button>`
+        : OPEN
+        ? `<button class="cta" id="order">Order ${d.n} for pickup →</button>`
+        : `<button class="cta" id="order">Save it. We open ${nextOpen} →</button>`}
+      <div class="cta-sub">
+        <button class="ghost" id="another">↻ Show me another</button>
+        <button class="ghost friend" id="friend">+ Pick one for a friend</button>
+      </div>
+      <div class="note">${OPEN?"Coming with friends? Build one order for the table.":"We'll keep your pick at the top of the page for next time"} · <button class="linkbtn" id="restart">Start over</button></div>
+    </div>
+    <div class="toast" id="toast"></div>
+  </div>`;
+  F.querySelector("#another").onclick=()=>renderResult(list,i+1);
+  F.querySelector("#restart").onclick=()=>{ans={};step=0;brewReset();renderStep();};
+  F.querySelector("#friend").onclick=()=>{ tray.push({who:me,d}); renderRound(); startFriend(); };
+  F.querySelector("#order").onclick=()=>{
+    if(tray.length){ tray.push({who:me,d}); renderRound(); orderRound(); return; }
+    store.set([d.n]); showChip();
+    if(OPEN){ location.href="menu.html#order"; return; }
+    const t=F.querySelector("#toast"); t.textContent=`Saved. ${d.n} will be waiting at the top of the page. See you ${nextOpen}.`; t.classList.add("show");
+    setTimeout(()=>t.classList.remove("show"),3800);
+  };
+}
+
+// ---- the round ----
+const R = document.getElementById("round"), RL = document.getElementById("roundList"), RO = document.getElementById("roundOrder");
+function renderRound(){
+  const has = tray.length>0;
+  R.classList.toggle("show",has); document.body.classList.toggle("has-round",has); if(!has) R.classList.remove("open");
+  document.getElementById("roundGlasses").innerHTML = tray.map(t=>mg(t.d.n)).join("");
+  document.getElementById("roundCount").textContent = `Your round · ${tray.length} drink${tray.length===1?"":"s"}`;
+  document.getElementById("roundTotal").textContent = money(tray.map(t=>t.d));
+  RO.textContent = OPEN ? "Order the round →" : "Save the round →";
+  RL.innerHTML = tray.map((t,i)=>`<div class="ri">${mg(t.d.n)}<span><b>${t.d.n}</b><small>${t.who}</small></span><em>${t.d.from?"from ":""}$${t.d.p}</em><button data-i="${i}" aria-label="Remove ${t.d.n}">×</button></div>`).join("")
+    + `<button class="ri-add" id="riAdd">+ Add another drink</button>`;
+  RL.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{ tray.splice(+b.dataset.i,1); renderRound(); });
+  document.getElementById("riAdd").onclick = startFriend;
+  document.getElementById("shelf").innerHTML = tray.map(t=>`<span>${mg(t.d.n)}${t.who}</span>`).join("");
+}
+function startFriend(){
+  ans={}; step=0; brewReset(); renderStep(); R.classList.remove("open");
+  if(tray.length) cap("Next up", `${who(tray.length)}'s turn. What are they in the mood for?`);
+  F.scrollIntoView({behavior:"smooth",block:"center"});
+}
+function orderRound(){
+  store.set(tray.map(t=>t.d.n)); showChip();
+  if(OPEN){ location.href="menu.html#order"; return; }
+  RO.textContent = `Saved ✓ See you ${nextOpen}`;
+  setTimeout(()=>{ RO.textContent="Save the round →"; },3200);
+}
+document.getElementById("roundToggle").onclick = ()=>R.classList.toggle("open");
+RO.onclick = orderRound;
+
+applyDaypart(LIVE_DP);
+brewReset();
+setInterval(()=>{ if(!OPEN && capS.textContent.startsWith("Opens")) capS.textContent=untilOpen(); },30000);
+</script>
+</body>
+</html>

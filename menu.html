@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phintopia Menu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#9b1c22; --red-d:#7a1419; --cream:#fbf6ef; --paper:#fffdf9; --ink:#24170f;
+  --muted:#6f5e52; --line:#eadfd2; --bean:#3b2417; --gold:#c9933a;
+  --bg:var(--cream); --card:var(--paper); --accent:var(--red);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#17110d; --card:#221913; --ink:#f4ebe1; --muted:#b9a797; --line:#3a2c22; --paper:#221913; --accent:#f0c98a;
+  }
+}
+:root[data-theme="dark"]{ --bg:#17110d; --card:#221913; --ink:#f4ebe1; --muted:#b9a797; --line:#3a2c22; --paper:#221913; --accent:#f0c98a; }
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:130px}
+body{background:var(--bg);color:var(--ink);font-family:"Bai Jamjuree",system-ui,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden;padding-bottom:110px}
+img{display:block;max-width:100%}
+a{color:inherit}
+button{font-family:inherit}
+
+.concept{background:var(--bean);color:#f3e6d6;font-size:12px;text-align:center;padding:6px 16px;letter-spacing:.02em}
+nav{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav-in{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:10px 16px}
+.nav-in img{height:26px}
+.nav-in .links{display:flex;gap:4px;margin-left:12px}
+.nav-in .links a{text-decoration:none;font-size:14px;padding:6px 12px;border-radius:99px;color:var(--muted)}
+.nav-in .links a.on{background:color-mix(in srgb,var(--red) 10%,transparent);color:var(--red)}
+.status{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.dot{width:8px;height:8px;border-radius:50%;background:#c0392b;box-shadow:0 0 0 4px color-mix(in srgb,#c0392b 20%,transparent)}
+.dot.open{background:#2e9e5b;box-shadow:0 0 0 4px color-mix(in srgb,#2e9e5b 22%,transparent)}
+
+/* header */
+.head{position:relative;isolation:isolate;overflow:hidden;color:#fbf1e6;padding:56px 16px 40px}
+.head::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(20,10,5,.92),rgba(20,10,5,.7)),url("https://static-assets.food-hunter.ca/restaurants/phintopia/images/menu/phin-coffee.jpg") center/cover}
+.head-in{max-width:1180px;margin:0 auto}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#f0c98a}
+.eyebrow::before{content:"";width:28px;height:1px;background:currentColor}
+.head h1{font-family:Fraunces,Georgia,serif;font-weight:400;font-size:clamp(34px,5vw,58px);line-height:1.05;margin:14px 0 10px;letter-spacing:-.02em}
+.head h1 em{color:#f0c98a}
+.head p{color:#e3d2c0;max-width:520px}
+.tools{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:26px}
+.search{flex:1 1 280px;max-width:380px;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);border-radius:14px;padding:0 14px}
+.search input{all:unset;flex:1;padding:12px 0;font-size:15px;color:#fff}
+.search input::placeholder{color:#cdb9a6}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{all:unset;cursor:pointer;font-size:14px;padding:9px 14px;border-radius:99px;border:1px solid rgba(255,255,255,.25);color:#f3e6d6}
+.chip[aria-pressed="true"]{background:#f3e6d6;color:var(--bean);border-color:#f3e6d6;font-weight:600}
+.chip:focus-visible,.search:focus-within{outline:2px solid #f0c98a;outline-offset:2px}
+.finder-link{font-size:14px;color:#f0c98a;text-underline-offset:4px;margin-left:auto}
+
+/* section tabs */
+.tabs{position:sticky;top:47px;z-index:15;background:var(--bg);border-bottom:1px solid var(--line)}
+.tabs-in{max-width:1180px;margin:0 auto;display:flex;gap:4px;overflow-x:auto;padding:10px 16px;scrollbar-width:none}
+.tabs a{flex:none;text-decoration:none;font-size:14px;padding:8px 14px;border-radius:99px;color:var(--muted);white-space:nowrap}
+.tabs a span{font-size:12px;opacity:.7;margin-left:4px}
+.tabs a.on{background:var(--ink);color:var(--bg)}
+
+main{max-width:1180px;margin:0 auto;padding:0 16px}
+.sec{padding-top:44px}
+.sec[hidden]{display:none}
+.banner{position:relative;border-radius:22px;overflow:hidden;height:150px;display:flex;align-items:flex-end;padding:20px 24px;color:#fff;isolation:isolate}
+.banner img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+.banner::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(20,10,5,.82),rgba(20,10,5,.15))}
+.banner h2{font-family:Fraunces,Georgia,serif;font-weight:400;font-size:30px;line-height:1.1}
+.banner p{font-size:14px;color:#ecdccb;margin-top:4px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;margin-top:16px}
+
+/* drink card */
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-3px);box-shadow:0 18px 34px -22px rgba(60,30,10,.5)}
+.vis{position:relative;height:150px;display:grid;place-items:center;overflow:hidden}
+.vis img{width:100%;height:100%;object-fit:cover}
+.glass{width:58px;height:78px;border:3px solid rgba(255,255,255,.85);border-top:0;border-radius:3px 3px 14px 14px;box-shadow:0 12px 24px -10px rgba(0,0,0,.5);position:relative}
+.glass::after{content:"";position:absolute;top:6px;bottom:10px;left:6px;width:6px;border-radius:6px;background:linear-gradient(rgba(255,255,255,.6),rgba(255,255,255,.05))}
+.badge{position:absolute;top:10px;left:10px;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;background:var(--bean);color:#f3e6d6;padding:4px 9px;border-radius:99px}
+.body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
+.body h3{font-weight:600;font-size:17px;line-height:1.25}
+.gloss{font-size:12px;color:var(--accent);font-weight:600;letter-spacing:.02em}
+.body p{font-size:14px;color:var(--muted)}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tags span{font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:2px 8px}
+.row{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:8px}
+.price{font-weight:700;font-size:17px}
+.price small{font-weight:400;color:var(--muted);font-size:12px;margin-right:3px}
+.add{all:unset;cursor:pointer;background:var(--red);color:#fff;font-weight:600;font-size:14px;padding:9px 16px;border-radius:12px;transition:background .15s}
+.add:hover{background:var(--red-d)}
+.add:focus-visible,.step button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.step{display:flex;align-items:center;gap:4px;background:color-mix(in srgb,var(--red) 10%,transparent);border-radius:12px;padding:3px}
+.step button{all:unset;cursor:pointer;width:32px;height:32px;border-radius:9px;text-align:center;line-height:32px;font-size:18px;font-weight:600;color:var(--accent)}
+.step button:hover{background:color-mix(in srgb,var(--red) 14%,transparent)}
+.step b{min-width:22px;text-align:center}
+.empty{text-align:center;padding:60px 16px;color:var(--muted)}
+.empty b{display:block;font-family:Fraunces,Georgia,serif;font-size:26px;font-weight:400;color:var(--ink);margin-bottom:6px}
+
+/* order bar */
+.mg{display:inline-block;width:20px;height:26px;border:2px solid rgba(255,255,255,.75);border-top:0;border-radius:2px 2px 7px 7px;flex:none}
+.order{position:fixed;left:50%;bottom:16px;transform:translate(-50%,160%);width:min(600px,calc(100% - 32px));z-index:30;transition:transform .45s cubic-bezier(.3,1.3,.5,1)}
+.order.show{transform:translate(-50%,0)}
+.obar{display:flex;align-items:center;gap:12px;background:var(--bean);color:#fbefe0;border-radius:22px;padding:10px 10px 10px 16px;box-shadow:0 20px 50px -10px rgba(0,0,0,.55)}
+.otoggle{all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;flex:1;min-width:0}
+.otoggle b{display:block;font-size:15px;font-weight:600}
+.otoggle small{font-size:13px;color:#d9c6b3}
+.otoggle .caret{font-style:normal;color:#d9c6b3;transition:transform .2s}
+.order.open .caret{transform:rotate(180deg)}
+.mgs{display:flex}
+.mgs .mg+.mg{margin-left:-6px}
+.octa{all:unset;cursor:pointer;background:var(--red);color:#fff;font-weight:600;font-size:15px;padding:12px 18px;border-radius:14px;white-space:nowrap}
+.octa:hover{background:var(--red-d)}
+.olist{display:none;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:20px;padding:8px;margin-bottom:8px;box-shadow:0 20px 50px -10px rgba(0,0,0,.4);max-height:55vh;overflow-y:auto;overflow-x:hidden}
+.order.open .olist{display:block}
+.oi{display:flex;align-items:center;gap:12px;padding:10px}
+.oi+.oi{border-top:1px solid var(--line)}
+.oi .mg{border-color:var(--muted)}
+.oi span{flex:1;min-width:0}
+.oi span b{display:block;font-weight:600;font-size:15px}
+.oi span small{color:var(--muted);font-size:13px}
+.onote{font-size:12px;color:var(--muted);text-align:center;padding:8px 10px 4px}
+
+footer{margin-top:80px;background:var(--bean);color:#e9dccd;padding:40px 16px}
+.foot{max-width:1180px;margin:0 auto;display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-size:14px}
+.foot img{height:56px;margin-bottom:10px}
+
+@media (max-width:900px){ .nav-in .links{display:none} .finder-link{margin-left:0} }
+@media (max-width:600px){
+  .head{padding:36px 16px 28px}
+  .grid{grid-template-columns:1fr}
+  .card{flex-direction:row}
+  .vis{width:112px;height:auto;min-height:140px;flex:none}
+  .glass{width:44px;height:60px}
+  .badge{font-size:9px;padding:3px 6px;top:8px;left:8px}
+  .banner{height:120px;padding:16px 18px}
+  .banner h2{font-size:24px}
+  .octa{padding:12px 14px;font-size:14px}
+  .status span{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="concept">Redesign concept, not the official Phintopia site</div>
+
+<nav>
+  <div class="nav-in">
+    <a href="phintopia-redesign.html"><img src="https://static-assets.food-hunter.ca/restaurants/phintopia/images/navlogo.png" alt="Phintopia home"></a>
+    <div class="links"><a href="phintopia-redesign.html">Home</a><a class="on" href="menu.html">Menu</a><a href="phintopia-redesign.html#visit">Visit</a></div>
+    <div class="status"><i class="dot" id="dot"></i><span id="statusTxt"></span></div>
+  </div>
+</nav>
+
+<header class="head">
+  <div class="head-in">
+    <div class="eyebrow">The menu · <span id="total"></span> drinks</div>
+    <h1>Every cup, one <em>slow drip</em> at a time.</h1>
+    <p>Traditional Vietnamese phin coffee, matcha, loose-leaf teas and seasonal favourites. Add what you like and pick it up fresh.</p>
+    <div class="tools">
+      <label class="search"><span aria-hidden="true">⌕</span><input id="q" type="search" placeholder="Search drinks, e.g. salted, jasmine, iced" aria-label="Search drinks"></label>
+      <div class="chips" id="chips" role="group" aria-label="Filter by mood"></div>
+      <a class="finder-link" href="phintopia-redesign.html">Not sure? Let us pick →</a>
+    </div>
+  </div>
+</header>
+
+<div class="tabs"><div class="tabs-in" id="tabs"></div></div>
+
+<main id="menu"></main>
+
+<div class="order" id="order" aria-live="polite">
+  <div class="olist" id="olist"></div>
+  <div class="obar">
+    <button class="otoggle" id="otoggle" aria-label="Review your order"><span class="mgs" id="oglasses"></span><span><b id="ocount"></b><small id="ototal"></small></span><i class="caret">⌃</i></button>
+    <button class="octa" id="octa"></button>
+  </div>
+</div>
+
+<footer>
+  <div class="foot">
+    <div><img src="https://static-assets.food-hunter.ca/restaurants/phintopia/images/logo.png" alt="Phintopia Coffee & Tea"><div>1340 Hemlock Road, Unit 113, Ottawa, ON K1K 5C3</div></div>
+    <div style="opacity:.7">Concept redesign · imagery © Phintopia</div>
+  </div>
+</footer>
+
+<script src="phintopia-data.js"></script>
+<script>
+const GLOSS = {"Phin đen":"Black phin coffee","Phin đen sữa":"Phin coffee with condensed milk","Cà phê muối":"Salted coffee","Phin bạc xỉu":"Vietnamese white coffee"};
+const MOODS = [["all","All"],["wake","⚡ Wake me up"],["calm","🍃 Calm"],["treat","🍯 Treat"],["fresh","🍋 Refresh"]];
+const MOOD_TAG = {wake:"Bold",calm:"Gentle",treat:"Sweet",fresh:"Bright"};
+const byName = n => DRINKS.find(d=>d.n===n);
+const $ = id => document.getElementById(id);
+
+// status
+$("dot").classList.toggle("open",OPEN);
+$("statusTxt").textContent = OPEN ? `Open until ${fmt(c)}` : `Closed · opens ${nextOpen}`;
+$("total").textContent = DRINKS.length;
+
+// cart: names with repeats, shared with the homepage through the saved order
+let cart = savedNames().filter(byName);
+const qty = n => cart.filter(x=>x===n).length;
+function setQty(n, q){
+  cart = cart.filter(x=>x!==n).concat(Array(Math.max(0,q)).fill(n));
+  store.set(cart); renderCards(n); renderOrder();
+}
+
+// ---- filters ----
+let mood = "all", query = "";
+$("chips").innerHTML = MOODS.map(([k,t])=>`<button class="chip" data-k="${k}" aria-pressed="${k===mood}">${t}</button>`).join("");
+$("chips").onclick = e => { const b=e.target.closest(".chip"); if(!b) return; mood=b.dataset.k;
+  document.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",x===b)); renderMenu(); };
+$("q").oninput = e => { query = e.target.value.trim().toLowerCase(); renderMenu(); };
+const matches = d => (mood==="all" || d.m.includes(mood)) &&
+  (!query || [d.n, d.d, GLOSS[d.n]||"", d.t, d.b].join(" ").toLowerCase().includes(query));
+
+// ---- cards ----
+function visual(d){
+  if(d.img.includes("/item/")) return `<img loading="lazy" src="${d.img}" alt="${d.n}">`;
+  const top = (POUR[d.n]||[["#3a1d0e",1]]).at(-1)[0];
+  return `<div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 60%,color-mix(in srgb,${top} 55%,#fff8ef),color-mix(in srgb,${top} 30%,#2b1a10) 120%)"></div>
+          <i class="glass" style="background:${grad(d.n)}" role="img" aria-label="${d.n}"></i>`;
+}
+const control = d => { const q=qty(d.n);
+  return q ? `<div class="step"><button data-dec="${d.n}" aria-label="Remove one ${d.n}">−</button><b>${q}</b><button data-inc="${d.n}" aria-label="Add one ${d.n}">+</button></div>`
+           : `<button class="add" data-inc="${d.n}">+ Add</button>`; };
+const card = d => `<article class="card">
+  <div class="vis">${visual(d)}${FEATURED.includes(d.n)?`<span class="badge">Featured</span>`:""}</div>
+  <div class="body">
+    <h3>${d.n}</h3>${GLOSS[d.n]?`<div class="gloss">${GLOSS[d.n]}</div>`:""}
+    <p>${d.d}</p>
+    <div class="tags">${d.m.map(m=>`<span>${MOOD_TAG[m]}</span>`).join("")}</div>
+    <div class="row"><div class="price">${d.from?"<small>from</small>":""}$${d.p}</div><div class="ctl" data-n="${d.n}">${control(d)}</div></div>
+  </div></article>`;
+
+function renderMenu(){
+  let shown = 0;
+  $("menu").innerHTML = SECTIONS.map(s=>{
+    const list = s.items.map(byName).filter(matches); shown += list.length;
+    return `<section class="sec" id="${s.k}" ${list.length?"":"hidden"}>
+      <div class="banner"><img src="${s.img}" alt=""><div><h2>${s.t}</h2><p>${s.s}</p></div></div>
+      <div class="grid">${list.map(card).join("")}</div></section>`;
+  }).join("") + (shown ? "" : `<div class="empty"><b>Nothing matches that yet</b>Try another word, or <a href="phintopia-redesign.html">let the Pause Finder pick</a>.</div>`);
+  $("tabs").innerHTML = SECTIONS.map(s=>{ const n=s.items.map(byName).filter(matches).length;
+    return n ? `<a href="#${s.k}" data-k="${s.k}">${s.t}<span>${n}</span></a>` : ""; }).join("");
+  watchSections();
+}
+function renderCards(n){ document.querySelectorAll(`.ctl[data-n="${CSS.escape(n)}"]`).forEach(el=>el.innerHTML=control(byName(n))); }
+$("menu").onclick = e => {
+  const inc=e.target.closest("[data-inc]"), dec=e.target.closest("[data-dec]");
+  if(inc) setQty(inc.dataset.inc, qty(inc.dataset.inc)+1);
+  if(dec) setQty(dec.dataset.dec, qty(dec.dataset.dec)-1);
+};
+
+// highlight the tab for the section in view
+let io;
+function watchSections(){
+  io && io.disconnect();
+  io = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){
+    document.querySelectorAll(".tabs a").forEach(a=>a.classList.toggle("on",a.dataset.k===e.target.id));
+    const on=document.querySelector(".tabs a.on"); on && on.scrollIntoView({inline:"nearest",block:"nearest"});
+  }}), {rootMargin:"-140px 0px -60% 0px"});
+  document.querySelectorAll(".sec:not([hidden])").forEach(s=>io.observe(s));
+}
+
+// ---- order bar ----
+const O = $("order");
+function renderOrder(){
+  const names = [...new Set(cart)], ds = cart.map(byName);
+  O.classList.toggle("show", cart.length>0); if(!cart.length) O.classList.remove("open");
+  $("oglasses").innerHTML = cart.slice(0,6).map(mg).join("");
+  $("ocount").textContent = `Your order · ${cart.length} drink${cart.length===1?"":"s"}`;
+  $("ototal").textContent = money(ds);
+  $("octa").textContent = OPEN ? "Order for pickup →" : "Save for 8 AM →";
+  $("olist").innerHTML = names.map(n=>{ const d=byName(n), q=qty(n);
+    return `<div class="oi">${mg(n)}<span><b>${n}</b><small>${d.from?"from ":""}$${(d.p*q).toFixed(2)}</small></span>${control(d)}</div>`; }).join("")
+    + `<div class="onote">${OPEN?"Sizes and options are chosen at checkout.":`We open ${nextOpen}. Your order stays saved on this device.`}</div>`;
+}
+$("olist").onclick = $("menu").onclick;
+$("otoggle").onclick = ()=>O.classList.toggle("open");
+$("octa").onclick = ()=>{
+  store.set(cart);
+  if(OPEN){ location.href = ORDER_URL; return; }
+  $("octa").textContent = `Saved ✓ See you ${nextOpen}`;
+  setTimeout(()=>$("octa").textContent="Save for 8 AM →",3200);
+};
+
+renderMenu(); renderOrder();
+if(location.hash==="#order" && cart.length) O.classList.add("open");
+else if(location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
+</script>
+</body>
+</html>
