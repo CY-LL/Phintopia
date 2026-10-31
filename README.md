@@ -32,6 +32,6 @@ Import the repo with no build command and the publish directory set to `.`. The 
 
 ## Notes
 
-- Images load from Phintopia's existing image host.
+- Images load from Phintopia's existing image host. The exception is `img/drinks/`, which holds openly licensed stand-in photos from Wikimedia Commons for the 24 drinks Phintopia has no photo of. They show the style of drink, not Phintopia's own cups; the authors and licences are listed on the menu page under "Photo credits". Replace them with real photos when they exist.
 - The final checkout goes to the live ordering page. The order is not passed into its cart.
 - The time-of-day preview buttons in the top banner are for demos. Remove them before going live.

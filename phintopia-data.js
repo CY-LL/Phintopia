@@ -86,3 +86,33 @@ const SECTIONS = [
 const FEATURED = ["Matcha Strawberry","Latte","Honey Chrysanthemum Tea","Cà phê muối","Jasmine Silver Needles"];
 const ORDER_URL = "https://www.phintopia.ca/menu"; // live checkout hand-off
 const savedNames = ()=>{ const s=store.get(); return s ? [].concat(s) : []; };
+
+// Openly licensed stand-in photos from Wikimedia Commons for drinks Phintopia has no photo of yet.
+// They show the style of drink, not Phintopia's own cups. Credits are listed on the menu page.
+const PHOTOS = {
+ "Phin đen":{src:"img/drinks/phin-den.jpg", by:"HungryHuy", lic:"CC BY 2.0", url:"https://commons.wikimedia.org/wiki/File:Vietnamese_coffee_brewing_with_metal_filter.jpg"},
+ "Phin đen sữa":{src:"img/drinks/phin-den-sua.jpg", by:"Clarin", lic:"CC BY 2.5", url:"https://commons.wikimedia.org/wiki/File:Ca_Phe_Sua_Da.jpg"},
+ "Phin bạc xỉu":{src:"img/drinks/phin-bac-xiu.jpg", by:"Klientos", lic:"CC BY-SA 4.0", url:"https://commons.wikimedia.org/wiki/File:Iced_B%E1%BA%A1c_X%E1%BB%89u_served_in_tall_glass_on_the_table_in_tha_cafe,_Danang_city,_2023.jpg"},
+ "Espresso":{src:"img/drinks/espresso.jpg", by:"Takeaway", lic:"CC BY-SA 3.0", url:"https://commons.wikimedia.org/wiki/File:Crema_espresso_Akha_Ama.jpg"},
+ "Americano":{src:"img/drinks/americano.jpg", by:"User:Sameer.siddhanti", lic:"Public domain", url:"https://commons.wikimedia.org/wiki/File:Espresso_Americano.jpeg"},
+ "Hazelnut Latte":{src:"img/drinks/hazelnut-latte.jpg", by:"RegionVisitor90", lic:"CC0", url:"https://commons.wikimedia.org/wiki/File:Renmark_Hotel_20250717-123802.jpg"},
+ "Mocha":{src:"img/drinks/mocha.jpg", by:"Andy Li", lic:"CC0", url:"https://commons.wikimedia.org/wiki/File:Black_Mocha_-_Black_Mocha_2024-01-08.jpg"},
+ "Macchiato":{src:"img/drinks/macchiato.jpg", by:"BuhaM", lic:"CC BY-SA 4.0", url:"https://commons.wikimedia.org/wiki/File:Caff%C3%A8_macchiato_in_Hotel_Moskva,_Belgrade_02.jpg"},
+ "Drip Coffee":{src:"img/drinks/drip-coffee.jpg", by:"User:Mattes", lic:"Public domain", url:"https://commons.wikimedia.org/wiki/File:Coffee_cup_with_filter.JPG"},
+ "Matcha Latte":{src:"img/drinks/matcha-latte.jpg", by:"Irvan Ary Maulana", lic:"CC BY-SA 4.0", url:"https://commons.wikimedia.org/wiki/File:Matcha_tea_latte_with_rosetta_latte_art.jpg"},
+ "Matcha Coconut":{src:"img/drinks/matcha-coconut.jpg", by:"Andy Li", lic:"CC0", url:"https://commons.wikimedia.org/wiki/File:Iced_Hojicha_Latte_and_Iced_Matcha_Latte_-_Rawlab_Juice_%26_Tea_2025-07-12.jpg"},
+ "Matcha Rose":{src:"img/drinks/matcha-rose.jpg", by:"Jeff Nelson", lic:"CC BY-SA 2.0", url:"https://commons.wikimedia.org/wiki/File:Matcha_green_tea_latte_art.jpg"},
+ "Coco - Ado":{src:"img/drinks/coco-ado.jpg", by:"Peachyeung316", lic:"CC BY-SA 4.0", url:"https://commons.wikimedia.org/wiki/File:A_Coconut_milk_with_Cendols_in_Hong_Kong.jpg"},
+ "Lemonade":{src:"img/drinks/lemonade.jpg", by:"Peachyeung316", lic:"CC BY-SA 4.0", url:"https://commons.wikimedia.org/wiki/File:A_iced_lemon_with_honey_drink_from_The_Spaghetti_House_in_Causeway_bay.jpg"},
+ "Honey Lemonade":{src:"img/drinks/honey-lemonade.jpg", by:"Apeach316", lic:"CC BY-SA 2.0", url:"https://commons.wikimedia.org/wiki/File:Sweet_iced_lemon_tea_with_honey.jpg"},
+ "Ayurvedic Ginger Fresh":{src:"img/drinks/ayurvedic-ginger-fresh.jpg", by:"AyyanD", lic:"CC BY-SA 4.0", url:"https://commons.wikimedia.org/wiki/File:Lemongrass_ginger_tea.jpg"},
+ "Lavender Earl Grey":{src:"img/drinks/lavender-earl-grey.jpg", by:"soultea.de/André Helbig", lic:"CC BY-SA 3.0", url:"https://commons.wikimedia.org/wiki/File:Frisch_aufgebr%C3%BChter_EarlGrey_Tee.jpg"},
+ "Chamomile Blossom":{src:"img/drinks/chamomile-blossom.jpg", by:"Coffeevore", lic:"CC BY-SA 4.0", url:"https://commons.wikimedia.org/wiki/File:Yuja_chamomile_tea.jpg"},
+ "Anxi Tieguanyin":{src:"img/drinks/anxi-tieguanyin.jpg", by:"Quelcrime", lic:"Public domain", url:"https://commons.wikimedia.org/wiki/File:Tieguanyin2.jpg"},
+ "Oolong":{src:"img/drinks/oolong.jpg", by:"Crisco 1492", lic:"CC BY-SA 3.0", url:"https://commons.wikimedia.org/wiki/File:Oolong_tea_being_poured,_Holiday_Restaurant,_Semarang,_2014-06-19.jpg"},
+ "Blackberry Green Bliss":{src:"img/drinks/blackberry-green-bliss.jpg", by:"Ceeseven", lic:"CC BY-SA 4.0", url:"https://commons.wikimedia.org/wiki/File:Iced_Green_Tea.JPG"},
+ "Cold Brew":{src:"img/drinks/cold-brew.jpg", by:"Tony Webster", lic:"CC BY 2.0", url:"https://commons.wikimedia.org/wiki/File:Iced_Coffee_in_Glass_-_Sunshine_Coffee_-_Laramie_Cafe_(53838344552).jpg"},
+ "Coco Latte":{src:"img/drinks/coco-latte.jpg", by:"Phương Huy", lic:"CC BY-SA 4.0", url:"https://commons.wikimedia.org/wiki/File:C%C3%A0_ph%C3%AA_Nguy%E1%BB%87t_Ca_(m%C3%B3n_d%C6%B0%C3%A0_t%C6%B0%C6%A1i)_th%C3%A1ng_6_n%C4%83m_2016_(1).jpg"},
+ "Hot Chocolate":{src:"img/drinks/hot-chocolate.jpg", by:"Bahnfrend", lic:"CC BY-SA 4.0", url:"https://commons.wikimedia.org/wiki/File:Dark_Hot_Chocolate,_San_Churro_Leederville,_2026_(01).jpg"},
+};
+DRINKS.forEach(d=>{ const ph=PHOTOS[d.n]; if(ph && !d.img.includes("/item/")){ d.img=ph.src; d.credit=ph; } });

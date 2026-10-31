@@ -57,7 +57,7 @@ nav{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,
 
 /* section tabs */
 .tabs{position:sticky;top:47px;z-index:15;background:var(--bg);border-bottom:1px solid var(--line)}
-.tabs-in{max-width:1180px;margin:0 auto;display:flex;gap:4px;overflow-x:auto;padding:10px 16px;scrollbar-width:none}
+.tabs-in{position:relative;max-width:1180px;margin:0 auto;display:flex;gap:4px;overflow-x:auto;padding:10px 16px;scrollbar-width:none}
 .tabs a{flex:none;text-decoration:none;font-size:14px;padding:8px 14px;border-radius:99px;color:var(--muted);white-space:nowrap}
 .tabs a span{font-size:12px;opacity:.7;margin-left:4px}
 .tabs a.on{background:var(--ink);color:var(--bg)}
@@ -123,7 +123,14 @@ main{max-width:1180px;margin:0 auto;padding:0 16px}
 .oi span small{color:var(--muted);font-size:13px}
 .onote{font-size:12px;color:var(--muted);text-align:center;padding:8px 10px 4px}
 
-footer{margin-top:80px;background:var(--bean);color:#e9dccd;padding:40px 16px}
+.credits{max-width:1180px;margin:56px auto 0;padding:0 16px;font-size:13px;color:var(--muted)}
+.credits summary{cursor:pointer;font-weight:600;color:var(--ink)}
+.credits p{margin:10px 0}
+.credits ul{columns:2 280px;gap:24px;list-style:none}
+.credits li{break-inside:avoid;padding:3px 0}
+.credits a{text-underline-offset:3px}
+.stand-in{position:absolute;right:8px;bottom:8px;font-size:10px;color:#fff;background:rgba(0,0,0,.45);padding:2px 6px;border-radius:99px}
+footer{margin-top:40px;background:var(--bean);color:#e9dccd;padding:40px 16px}
 .foot{max-width:1180px;margin:0 auto;display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;font-size:14px}
 .foot img{height:56px;margin-bottom:10px}
 
@@ -179,6 +186,14 @@ footer{margin-top:80px;background:var(--bean);color:#e9dccd;padding:40px 16px}
   </div>
 </div>
 
+<section class="credits" id="credits">
+  <details>
+    <summary>Photo credits</summary>
+    <p>Drinks marked ● use openly licensed stand-in photos from Wikimedia Commons. They show the style of drink, not Phintopia's own cups. All other photos © Phintopia.</p>
+    <ul id="creditList"></ul>
+  </details>
+</section>
+
 <footer>
   <div class="foot">
     <div><img src="https://static-assets.food-hunter.ca/restaurants/phintopia/images/logo.png" alt="Phintopia Coffee & Tea"><div>1340 Hemlock Road, Unit 113, Ottawa, ON K1K 5C3</div></div>
@@ -193,6 +208,7 @@ const MOODS = [["all","All"],["wake","⚡ Wake me up"],["calm","🍃 Calm"],["tr
 const MOOD_TAG = {wake:"Bold",calm:"Gentle",treat:"Sweet",fresh:"Bright"};
 const byName = n => DRINKS.find(d=>d.n===n);
 const $ = id => document.getElementById(id);
+const esc = s => s.replace(/[&<>"]/g, ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
 
 // status
 $("dot").classList.toggle("open",OPEN);
@@ -218,7 +234,7 @@ const matches = d => (mood==="all" || d.m.includes(mood)) &&
 
 // ---- cards ----
 function visual(d){
-  if(d.img.includes("/item/")) return `<img loading="lazy" src="${d.img}" alt="${d.n}">`;
+  if(!Object.values(CAT).includes(d.img)) return `<img loading="lazy" src="${d.img}" alt="${d.n}">`;
   const top = (POUR[d.n]||[["#3a1d0e",1]]).at(-1)[0];
   return `<div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 60%,color-mix(in srgb,${top} 55%,#fff8ef),color-mix(in srgb,${top} 30%,#2b1a10) 120%)"></div>
           <i class="glass" style="background:${grad(d.n)}" role="img" aria-label="${d.n}"></i>`;
@@ -227,7 +243,7 @@ const control = d => { const q=qty(d.n);
   return q ? `<div class="step"><button data-dec="${d.n}" aria-label="Remove one ${d.n}">−</button><b>${q}</b><button data-inc="${d.n}" aria-label="Add one ${d.n}">+</button></div>`
            : `<button class="add" data-inc="${d.n}">+ Add</button>`; };
 const card = d => `<article class="card">
-  <div class="vis">${visual(d)}${FEATURED.includes(d.n)?`<span class="badge">Featured</span>`:""}</div>
+  <div class="vis">${visual(d)}${FEATURED.includes(d.n)?`<span class="badge">Featured</span>`:""}${d.credit?`<a class="stand-in" href="#credits" title="Stand-in photo: ${esc(d.credit.by)}, ${d.credit.lic}">●</a>`:""}</div>
   <div class="body">
     <h3>${d.n}</h3>${GLOSS[d.n]?`<div class="gloss">${GLOSS[d.n]}</div>`:""}
     <p>${d.d}</p>
@@ -254,14 +270,18 @@ $("menu").onclick = e => {
   if(dec) setQty(dec.dataset.dec, qty(dec.dataset.dec)-1);
 };
 
-// highlight the tab for the section in view
-let io;
+// highlight the tab for the section in view. Only the tab strip scrolls sideways:
+// scrollIntoView() here would also move the page and fight the reader's own scrolling.
+let io, current = "";
 function watchSections(){
-  io && io.disconnect();
-  io = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){
-    document.querySelectorAll(".tabs a").forEach(a=>a.classList.toggle("on",a.dataset.k===e.target.id));
-    const on=document.querySelector(".tabs a.on"); on && on.scrollIntoView({inline:"nearest",block:"nearest"});
-  }}), {rootMargin:"-140px 0px -60% 0px"});
+  io && io.disconnect(); current = "";
+  io = new IntersectionObserver(es=>es.forEach(e=>{
+    if(!e.isIntersecting || e.target.id===current) return;
+    current = e.target.id;
+    const strip = $("tabs"); let on;
+    strip.querySelectorAll("a").forEach(a=>{ const hit=a.dataset.k===current; a.classList.toggle("on",hit); if(hit) on=a; });
+    if(on) strip.scrollTo({left: on.offsetLeft - 16, behavior:"smooth"});
+  }), {rootMargin:"-140px 0px -60% 0px"});
   document.querySelectorAll(".sec:not([hidden])").forEach(s=>io.observe(s));
 }
 
@@ -286,6 +306,10 @@ $("octa").onclick = ()=>{
   $("octa").textContent = `Saved ✓ See you ${nextOpen}`;
   setTimeout(()=>$("octa").textContent="Save for 8 AM →",3200);
 };
+
+$("creditList").innerHTML = DRINKS.filter(d=>d.credit).map(d=>
+  `<li><b>${d.n}</b>: <a href="${d.credit.url}" target="_blank" rel="noopener">${esc(d.credit.by)}</a>, ${d.credit.lic}</li>`).join("");
+document.addEventListener("click", e=>{ if(e.target.closest(".stand-in")) document.querySelector("#credits details").open = true; });
 
 renderMenu(); renderOrder();
 if(location.hash==="#order" && cart.length) O.classList.add("open");
