@@ -7,17 +7,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
 <style>
+/* always the dark coffee palette, whatever the visitor's system theme */
 :root{
-  --red:#9b1c22; --red-d:#7a1419; --cream:#fbf6ef; --paper:#fffdf9; --ink:#24170f;
-  --muted:#6f5e52; --line:#eadfd2; --bean:#3b2417; --gold:#c9933a;
-  --bg:var(--cream); --card:var(--paper); --accent:var(--red);
+  color-scheme:dark;
+  --red:#9b1c22; --red-d:#7a1419; --bean:#3b2417; --gold:#c9933a;
+  --bg:#17110d; --card:#221913; --paper:#221913; --ink:#f4ebe1; --muted:#b9a797; --line:#3a2c22; --accent:#f0c98a;
 }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#17110d; --card:#221913; --ink:#f4ebe1; --muted:#b9a797; --line:#3a2c22; --paper:#221913; --accent:#f0c98a;
-  }
-}
-:root[data-theme="dark"]{ --bg:#17110d; --card:#221913; --ink:#f4ebe1; --muted:#b9a797; --line:#3a2c22; --paper:#221913; --accent:#f0c98a; }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--ink);font-family:"Bai Jamjuree",system-ui,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
