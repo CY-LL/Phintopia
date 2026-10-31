@@ -26,6 +26,10 @@ python -m http.server 8765
 
 Then go to http://localhost:8765/phintopia-redesign.html
 
+## Deploying on Netlify
+
+Import the repo with no build command and the publish directory set to `.`. The `_redirects` file serves the homepage at the site root, so the bare URL works.
+
 ## Notes
 
 - Images load from Phintopia's existing image host.
